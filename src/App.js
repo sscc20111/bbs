@@ -116,35 +116,39 @@ const Board = () => {
       localStorage.setItem('bbs_data_style', JSON.stringify(notes));
     },[add, remove, test])
     
-    const fliptest = () => {
-      const flipbtn = document.querySelector('.flipTestBtn')
-      const flipContent = document.querySelector('.flipTestContent')
-      const state = Flip.getState(".flipTestBtn, .flipTestContent");
-      flipbtn.classList.toggle("active");
-      flipContent.classList.toggle("active");
-      Flip.from(state, {
-        duration: 2,
-        fade: true,
-        absolute: true,
-        toggleClass: "flipping",
-        ease: "power1.inOut"
-      });
-      console.log('flip')
-    }
-    const fliptest2 = () => {
-      const flipbtn = document.querySelector('.flipTestBtn2')
-      const flipContent = document.querySelector('.flipTestContent')
-      const state = Flip.getState(".flipTestBtn2, .flipTestContent");
-      flipbtn.classList.toggle("active");
-      flipContent.classList.toggle("active");
-      Flip.from(state, {
-        duration: 2,
-        fade: true,
-        absolute: true,
-        toggleClass: "flipping",
-        ease: "power1.inOut"
-      });
-      console.log('flip')
+    // const fliptest = () => {
+    //   const flipbtn = document.querySelector('.flipTestBtn')
+    //   const flipContent = document.querySelector('.flipTestContent')
+    //   const state = Flip.getState(".flipTestBtn, .flipTestContent");
+    //   flipbtn.classList.toggle("active");
+    //   flipContent.classList.toggle("active");
+    //   Flip.from(state, {
+    //     duration: 2,
+    //     fade: true,
+    //     absolute: true,
+    //     toggleClass: "flipping",
+    //     ease: "power1.inOut"
+    //   });
+    //   console.log('flip')
+    // }
+    // const fliptest2 = () => {
+    //   const flipbtn = document.querySelector('.flipTestBtn2')
+    //   const flipContent = document.querySelector('.flipTestContent')
+    //   const state = Flip.getState(".flipTestBtn2, .flipTestContent");
+    //   flipbtn.classList.toggle("active");
+    //   flipContent.classList.toggle("active");
+    //   Flip.from(state, {
+    //     duration: 2,
+    //     fade: true,
+    //     absolute: true,
+    //     toggleClass: "flipping",
+    //     ease: "power1.inOut"
+    //   });
+    //   console.log('flip')
+    // }
+
+    const createText = () => {
+      
     }
     return (
         <div className="board">
@@ -154,9 +158,11 @@ const Board = () => {
                 </Note>
             ))}
             <button className="btn btn-sm btn-success glyphicon glyphicon-plus" onClick={() => add('New Note')} />
-            <img className='flipTestBtn' onClick={fliptest} data-flip-id="afawfawf" src="https://placehold.co/200x200"></img>
+            
+            <img className='flipTestContent' onClick={createText} data-flip-id="afawfawf"  src="https://placehold.co/600x600"></img>
+            {/* <img className='flipTestBtn' onClick={fliptest} data-flip-id="afawfawf" src="https://placehold.co/200x200"></img>
             <img className='flipTestContent' onClick={fliptest2} data-flip-id="afawfawf"  src="https://placehold.co/600x600"></img>
-            <img className='flipTestBtn2' data-flip-id="afawfawf" src="https://placehold.co/200x200"></img>
+            <img className='flipTestBtn2' data-flip-id="afawfawf" src="https://placehold.co/200x200"></img> */}
         </div>
     );
 };
