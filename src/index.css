@@ -1,13 +1,158 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.App {
+  text-align: center;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+@import url(https://fonts.googleapis.com/css?family=Shadows+Into+Light);
+
+body,
+html,
+div.board,
+div#react-container {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+div.board {
+    background-color: brown;
+    width: 100%;
+    background: #eab92d;
+    background: -moz-radial-gradient(center, ellipse cover, #eab92d 57%, #c79810 99%);
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(57%, #eab92d), color-stop(99%, #c79810));
+    background: -webkit-radial-gradient(center, ellipse cover, #eab92d 57%, #c79810 99%);
+    background: -o-radial-gradient(center, ellipse cover, #eab92d 57%, #c79810 99%);
+    background: -ms-radial-gradient(center, ellipse cover, #eab92d 57%, #c79810 99%);
+    background: radial-gradient(ellipse at center, #eab92d 57%, #c79810 99%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eab92d', endColorstr='#c79810', GradientType=1);
+
+}
+
+div.note {
+    height: 150px;
+    width: 150px;
+    background-color: yellow;
+    margin: 2px 0;
+    position: absolute;
+    cursor: -webkit-grab;
+    -webkit-box-shadow: 5px 5px 15px 0 rgba(0, 0, 0, .2);
+    box-shadow: 5px 5px 15px 0 rgba(0, 0, 0, .2);
+}
+
+div.note:active {
+    cursor: -webkit-grabbing;
+}
+
+div.note p {
+    font-size: 22px;
+    padding: 5px;
+    font-family: "Shadows Into Light", Arial;
+}
+
+div.note:hover > span {
+    opacity: 1;
+}
+
+div.note > span {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    opacity: 0;
+    transition: opacity .25s linear;
+}
+
+div.note button {
+    margin: 2px;
+}
+
+div.note > textarea {
+    height: 75%;
+    background: rgba(255, 255, 255, .5);
+}
+
+.glyphicon-plus {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+}
+
+/* .flipTestBtn {width: 200px; height: 200px; background-color: #282c34; position: absolute; top: 10%; left: 10%;}
+.flipTestContent {width: 400px; height: 400px; background-color: #265bc4; position: absolute; top: 40%; left: 40%;} */
+.flipTestBtn {
+  border: 1px solid rgba(255,255,255,0.3);
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+.flipTestBtn2 {
+  border: 1px solid rgba(255,255,255,0.3);
+  position: fixed;
+  right: 15px;
+  bottom: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+
+.flipTestContent {
+  flex-shrink: 0;
+  flex-grow: 0;
+  height: 100%;
+  display: none;
+}
+.flipTestContent.active {
+  display: block;
+}
+.flipTestBtn.active {
+  visibility: hidden;
+}
+.flipTestBtn2.active {
+  visibility: hidden;
+}
+.flipTestBtn, .flipTestBtn2, .flipTestBtn.flipping {
+  visibility: visible;
 }
