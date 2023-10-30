@@ -65,7 +65,6 @@ const Note = ({ index, children, style, onRemove, drag, modify, state }) => {
           <div className={'note flipIndex' + index} style={style} data-index={index} data-flip-id="flipform">
               <p>{children}</p>
               <p>{index}</p>
-              <p>{state.toString()}</p>
               <span>
                   <button onClick={modifyTarget} className="btn btn-primary glyphicon glyphicon-pencil" />
                   <button onClick={remove} className="btn btn-danger glyphicon glyphicon-trash" />
@@ -77,7 +76,6 @@ const Note = ({ index, children, style, onRemove, drag, modify, state }) => {
           <div className={'note flipIndex' + index + ' dumyNote'} style={style} data-index={index} data-flip-id="flipform">
               <p>{children}</p>
               <p>{index}</p>
-              <p>{state.toString()}</p>
               <span>
                   <button onClick={modifyTarget} className="btn btn-primary glyphicon glyphicon-pencil" />
                   <button onClick={remove} className="btn btn-danger glyphicon glyphicon-trash" />
@@ -117,7 +115,7 @@ const NoteFlip = ({textsave, flipOut,modifyText}) => {
 }
 const Board = () => {
     const savenotes = JSON.parse(localStorage.getItem('bbs_data_style'));
-    const [notes, setNotes] = useState(savenotes || [{id:0, note:'', style:style()}]);
+    const [notes, setNotes] = useState(savenotes || []);
     const [id, setId] = useState(0);
     const [FlipArry, setFlip] = useState([]);
     
@@ -154,6 +152,11 @@ const Board = () => {
       if(FlipArry[0] === '.createBtn'){
         remove(id-1)
         setId(id-1)
+      }else{
+        const updatedNotes = notes.map(note => {
+            return { ...note, state:true};
+        });
+        setNotes(updatedNotes);
       }
     }
 
@@ -185,9 +188,16 @@ const Board = () => {
       setFlip(['.createBtn','.flipForm'])
     }
 
-    const modify = (from, to, index) => {
+    const modify = (from, to, id) => {
       flip(from, to)
-      setFlip([from, to, index])
+      setFlip([from, to, id])
+      const updatedNotes = notes.map(note => {
+        if (note.id === id) {
+          return { ...note, state:false};
+        }
+        return note;
+      });
+      setNotes(updatedNotes);
     }
 
     return (
