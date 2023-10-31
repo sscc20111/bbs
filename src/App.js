@@ -16,7 +16,7 @@ const style = () => {
     return min + Math.ceil(Math.random() * max);
   };
   
-  const style = { transform: 'translate(' + randomBetween(0, window.innerWidth - 150) + 'px,' + randomBetween(0, window.innerHeight - 150) + 'px) rotate(' + randomBetween(-15, 15) + 'deg)', };
+  const style = 'translate(' + randomBetween(0, window.innerWidth - 150) + 'px,' + randomBetween(0, window.innerHeight - 150) + 'px) rotate(' + randomBetween(-15, 15) + 'deg)';
   return style
 }
 
@@ -87,8 +87,8 @@ const NoteFlip = ({textsave, flipOut}) => {
   // useEffect(()=>{
   //   setNoteText()
   // },[])
-  const save = () => {
-    textsave(noteText)
+  const save = (e) => {
+    textsave(e,noteText)
     setNoteText('')
   }
   const cancel = () => {
@@ -114,19 +114,28 @@ const NoteFlip = ({textsave, flipOut}) => {
 
 
 const Board = () => {
+  const [notes, setNotes] = useState([]);
+  const [id, setId] = useState(0);
+  const [FlipArry, setFlip] = useState([]);
+
   useEffect(() => {
     fetchData();
   }, []);
 
-  const [notetest, setNotetest] = useState([]);
-  const [tests, settest] = useState([]);
+  useEffect(() => {
+    if (notes && notes.length !== 0) {
+      setId(notes.slice(-1)[0].id);
+    } else {
+      setId(0);
+    }
+
+    localStorage.setItem('bbs_data_style', JSON.stringify(notes));//테스트용 로컬스토리지 출력
+  }, [notes]);
 
   const fetchData = async () => {
     try {
       const response = await axios.get('http://nmwoo.info/backend/backend.php');
-      // setNotetest(response.data);
-      console.log(response.data);
-      const updatedNotes = response.data.map((note) => {
+      const fetchData = response.data.map((note) => {
         return {
           date: note.date,
           id: note.id,
@@ -137,137 +146,116 @@ const Board = () => {
           user_data: note.user_data
         };
       });
-      settest(updatedNotes)
+      setNotes(fetchData)
     } catch (error) {
       console.error('Error fetching data:', error);
     }  
   };  
-  const test = () => {
-    // const cleanedData = notes[0].replace(/\\/g, '');
-    // const parsedData = JSON.parse(notes[0]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const response = await axios.post('http://nmwoo.info/backend/save_post.php', {
+        text: 'textValue',
+        style: style(),
+        state: false
+      });
+    } catch (error) {
+      console.error('Error saving post:', error);
+    }
+    fetchData();
+  };
   
-    const updatedNotes = notetest.map((note) => {
-      return {
-        date: note.date,
-        id: note.id,
-        ip: note.ip,
-        state: Boolean(parseInt(note.state)),
-        style: {transform: note.style},
-        note: note.text,
-        user_data: note.user_data
-      };
+  const handleUpdate = async (e, newText, i) => {
+    e.preventDefault();
+    
+    try {
+      const response = await axios.post('http://nmwoo.info/backend/update_post.php', {
+        text: newText,
+        id: i,
+        state: true
+      });
+    } catch (error) {
+      console.error('Error saving post:', error);
+    }
+    fetchData();
+  };
+
+
+
+  const creatNote = (e) => {
+    handleSubmit(e)
+    flip('.createBtn','.flipForm')
+    setFlip(['.createBtn','.flipForm'])
+    setId(id+1)
+  }
+
+  const noteSave = (e, noteText) => {
+    if(FlipArry[0] === '.createBtn'){
+      flip('.flipIndex'+(id), FlipArry[1])
+      update(e, noteText, id)
+    }else{
+      flip(FlipArry[0], FlipArry[1])
+      update(e, noteText, FlipArry[2])
+    }
+  }
+
+  const update = (e, newText, i) => {
+    handleUpdate(e, newText, i)
+  };
+
+  const modify = (from, to, id) => {
+    flip(from, to)
+    setFlip([from, to, id])
+    const updatedNotes = notes.map(note => {
+      if (note.id === id) {
+        return { ...note, state:false};
+      }
+      return note;
     });
-    settest(updatedNotes)
-    localStorage.setItem('bbs_data_style2', JSON.stringify(updatedNotes));
-    // localStorage.setItem('bbs_data_style3', JSON.stringify(updatedNotes[1].style.replaceAll("\"", "'")));
-    console.log(updatedNotes)
-    // console.log(updatedNotes[1].style)
-    // console.log(notes)
+    setNotes(updatedNotes);
+  }
+
+  const remove = (i) => {
+    const updatedNotes = notes.filter(note => note.id !== i);
+    setNotes(updatedNotes);
+  };
+  
+  const dragset = (transform, i) => {
+    console.log(transform)
+    const Localnotes = JSON.parse(localStorage.getItem('bbs_data_style'));
+    const updatedNotes = Localnotes.map(note => {
+      if (note.id === parseInt(i)) {
+        return { ...note, style:{...note.style, transform:transform} };
+      }
+      return note;
+    });
+    setNotes(updatedNotes);
+  }
+
+  const flipOut = () => {
+    flip(FlipArry[0], FlipArry[1])
+    if(FlipArry[0] === '.createBtn'){
+      remove(id)
+      setId(id)
+    }else{
+      const updatedNotes = notes.map(note => {
+          return { ...note, state:true};
+      });
+      setNotes(updatedNotes);
+    }
   }
 
 
-    const savenotes = JSON.parse(localStorage.getItem('bbs_data_style'));
-    const [notes, setNotes] = useState(savenotes || []);
-    const [id, setId] = useState(0);
-    const [FlipArry, setFlip] = useState([]);
-    useEffect(() => {
-      if (savenotes && savenotes.length !== 0) {
-        setId(savenotes.slice(-1)[0].id + 1);
-      } else {
-        setId(0);
-      }
-    }, [savenotes]);
-
-    useEffect(()=>{
-      localStorage.setItem('bbs_data_style', JSON.stringify(notes));
-    },[notes])
-    
-    const remove = (i) => {
-      const updatedNotes = notes.filter(note => note.id !== i);
-      setNotes(updatedNotes);
-    };
-    
-    const dragset = (transform, i) => {
-      console.log(transform)
-      const Localnotes = JSON.parse(localStorage.getItem('bbs_data_style'));
-      const updatedNotes = Localnotes.map(note => {
-        if (note.id === parseInt(i)) {
-          return { ...note, style:{...note.style, transform:transform} };
-        }
-        return note;
-      });
-      setNotes(updatedNotes);
-    }
-
-    const flipOut = () => {
-      flip(FlipArry[0], FlipArry[1])
-      if(FlipArry[0] === '.createBtn'){
-        remove(id-1)
-        setId(id-1)
-      }else{
-        const updatedNotes = notes.map(note => {
-            return { ...note, state:true};
-        });
-        setNotes(updatedNotes);
-      }
-    }
-
-
-    const update = (newText, i) => {
-      const updatedNotes = notes.map(note => {
-        if (note.id === i) {
-          return { ...note, note:newText, state:true};
-        }
-        return note;
-      });
-      setNotes(updatedNotes);
-    };
-
-    const noteSave = (noteText) => {
-      if(FlipArry[0] === '.createBtn'){
-        flip('.flipIndex'+(id-1), FlipArry[1])
-        update(noteText, id-1)
-      }else{
-        flip(FlipArry[0], FlipArry[1])
-        update(noteText, FlipArry[2])
-      }
-    }
-
-    const creatNote = () => {
-      setId(id+1)
-      setNotes([...notes, { id: id, style: style(), state:false}]);
-      flip('.createBtn','.flipForm')
-      setFlip(['.createBtn','.flipForm'])
-      console.log(notes)
-
-    }
-
-    const modify = (from, to, id) => {
-      flip(from, to)
-      setFlip([from, to, id])
-      const updatedNotes = notes.map(note => {
-        if (note.id === id) {
-          return { ...note, state:false};
-        }
-        return note;
-      });
-      setNotes(updatedNotes);
-    }
-
     return (
         <div className="board">
-            {/* {notes.map((note) => (
-                <Note key={note.id} index={note.id} length={id} style={note.style} state={note.state} drag={dragset} modify={modify} onRemove={remove}>
-                    {note.note}
-                </Note>
-            ))} */}
-            {tests.map((note) => (
+            {notes.map((note) => (
                 <Note key={note.id} index={note.id} length={id} style={note.style} state={note.state} drag={dragset} modify={modify} onRemove={remove}>
                     {note.note}
                 </Note>
             ))}
-            {/* <button className="createBtn btn btn-sm btn-success glyphicon glyphicon-plus" data-flip-id="flipform" onClick={creatNote} /> */}
-            <button className="createBtn btn btn-sm btn-success glyphicon glyphicon-plus" data-flip-id="flipform" onClick={test} />
+            <button className="createBtn btn btn-sm btn-success glyphicon glyphicon-plus" data-flip-id="flipform" onClick={creatNote} />
             <NoteFlip textsave={noteSave} flipOut={flipOut}></NoteFlip>
         </div>
     );
