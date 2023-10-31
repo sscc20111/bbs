@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import gsap from 'gsap';
 import { Draggable } from "gsap/Draggable";
 import { Flip } from 'gsap/Flip';
 import { Button, Container, FloatingLabel, FormControl, Stack } from 'react-bootstrap';
 
+import fetchData , {handleSubmit, bbs_delete} from './backend'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
@@ -14,11 +16,7 @@ const style = () => {
     return min + Math.ceil(Math.random() * max);
   };
   
-  const style = {
-    left: randomBetween(0, window.innerWidth - 150) + 'px',
-    top: randomBetween(0, window.innerHeight - 150) + 'px',
-    transform: 'rotate(' + randomBetween(-15, 15) + 'deg)',
-  };
+  const style = { transform: 'translate(' + randomBetween(0, window.innerWidth - 150) + 'px,' + randomBetween(0, window.innerHeight - 150) + 'px) rotate(' + randomBetween(-15, 15) + 'deg)', };
   return style
 }
 
@@ -84,7 +82,7 @@ const Note = ({ index, children, style, onRemove, drag, modify, state }) => {
       );
     }
 };
-const NoteFlip = ({textsave, flipOut,modifyText}) => {
+const NoteFlip = ({textsave, flipOut}) => {
   const [noteText, setNoteText] = useState('');
   // useEffect(()=>{
   //   setNoteText()
@@ -113,12 +111,65 @@ const NoteFlip = ({textsave, flipOut,modifyText}) => {
     </Container>
   )
 }
+
+
 const Board = () => {
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const [notetest, setNotetest] = useState([]);
+  const [tests, settest] = useState([]);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('http://nmwoo.info/backend/backend.php');
+      // setNotetest(response.data);
+      console.log(response.data);
+      const updatedNotes = response.data.map((note) => {
+        return {
+          date: note.date,
+          id: note.id,
+          ip: note.ip,
+          state: Boolean(parseInt(note.state)),
+          style: {transform: note.style},
+          note: note.text,
+          user_data: note.user_data
+        };
+      });
+      settest(updatedNotes)
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }  
+  };  
+  const test = () => {
+    // const cleanedData = notes[0].replace(/\\/g, '');
+    // const parsedData = JSON.parse(notes[0]);
+  
+    const updatedNotes = notetest.map((note) => {
+      return {
+        date: note.date,
+        id: note.id,
+        ip: note.ip,
+        state: Boolean(parseInt(note.state)),
+        style: {transform: note.style},
+        note: note.text,
+        user_data: note.user_data
+      };
+    });
+    settest(updatedNotes)
+    localStorage.setItem('bbs_data_style2', JSON.stringify(updatedNotes));
+    // localStorage.setItem('bbs_data_style3', JSON.stringify(updatedNotes[1].style.replaceAll("\"", "'")));
+    console.log(updatedNotes)
+    // console.log(updatedNotes[1].style)
+    // console.log(notes)
+  }
+
+
     const savenotes = JSON.parse(localStorage.getItem('bbs_data_style'));
     const [notes, setNotes] = useState(savenotes || []);
     const [id, setId] = useState(0);
     const [FlipArry, setFlip] = useState([]);
-    
     useEffect(() => {
       if (savenotes && savenotes.length !== 0) {
         setId(savenotes.slice(-1)[0].id + 1);
@@ -137,6 +188,7 @@ const Board = () => {
     };
     
     const dragset = (transform, i) => {
+      console.log(transform)
       const Localnotes = JSON.parse(localStorage.getItem('bbs_data_style'));
       const updatedNotes = Localnotes.map(note => {
         if (note.id === parseInt(i)) {
@@ -186,6 +238,8 @@ const Board = () => {
       setNotes([...notes, { id: id, style: style(), state:false}]);
       flip('.createBtn','.flipForm')
       setFlip(['.createBtn','.flipForm'])
+      console.log(notes)
+
     }
 
     const modify = (from, to, id) => {
@@ -202,12 +256,18 @@ const Board = () => {
 
     return (
         <div className="board">
-            {notes.map((note) => (
+            {/* {notes.map((note) => (
+                <Note key={note.id} index={note.id} length={id} style={note.style} state={note.state} drag={dragset} modify={modify} onRemove={remove}>
+                    {note.note}
+                </Note>
+            ))} */}
+            {tests.map((note) => (
                 <Note key={note.id} index={note.id} length={id} style={note.style} state={note.state} drag={dragset} modify={modify} onRemove={remove}>
                     {note.note}
                 </Note>
             ))}
-            <button className="createBtn btn btn-sm btn-success glyphicon glyphicon-plus" data-flip-id="flipform" onClick={creatNote} />
+            {/* <button className="createBtn btn btn-sm btn-success glyphicon glyphicon-plus" data-flip-id="flipform" onClick={creatNote} /> */}
+            <button className="createBtn btn btn-sm btn-success glyphicon glyphicon-plus" data-flip-id="flipform" onClick={test} />
             <NoteFlip textsave={noteSave} flipOut={flipOut}></NoteFlip>
         </div>
     );
