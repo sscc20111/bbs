@@ -5,7 +5,6 @@ import { Draggable } from "gsap/Draggable";
 import { Flip } from 'gsap/Flip';
 import { Button, Container, FloatingLabel, FormControl, Stack } from 'react-bootstrap';
 
-import fetchData , {handleSubmit, bbs_delete} from './backend'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
@@ -43,7 +42,7 @@ const Note = ({ index, children, style, onRemove, drag, modify, state }) => {
           const target = e.target.closest('.note');
           const index = target.getAttribute('data-index');
 
-          drag(target.style.transform, index)
+          drag(e, target.style.transform, index)
         }
       });
     },[drag])
@@ -167,13 +166,14 @@ const Board = () => {
     fetchData();
   };
   
-  const handleUpdate = async (e, newText, i) => {
+  const handleUpdate = async (e, newText, i, transform) => {
     e.preventDefault();
     
     try {
       const response = await axios.post('http://nmwoo.info/backend/update_post.php', {
         text: newText,
         id: i,
+        style: transform,
         state: true
       });
     } catch (error) {
@@ -182,27 +182,43 @@ const Board = () => {
     fetchData();
   };
 
+  const bbs_delete = async (id) => {
+    try {
+      const response = await axios.post('http://nmwoo.info/backend/delete_post.php', {
+        id: id
+      });
+    } catch (error) {
+      console.error('Error deleting item:', error);
+    }
+    fetchData();
+  };
 
 
   const creatNote = (e) => {
     handleSubmit(e)
     flip('.createBtn','.flipForm')
     setFlip(['.createBtn','.flipForm'])
-    setId(id+1)
   }
 
   const noteSave = (e, noteText) => {
+    
     if(FlipArry[0] === '.createBtn'){
+      console.log(id)
+      const updatedNotes = notes.filter(note => note.id === id);
+      const style = updatedNotes[0].style.transform;
       flip('.flipIndex'+(id), FlipArry[1])
-      update(e, noteText, id)
+      update(e, noteText, id, style)
     }else{
+      console.log(FlipArry[2])
+      const updatedNotes = notes.filter(note => note.id === FlipArry[2]);
+      const style = updatedNotes[0].style.transform;
       flip(FlipArry[0], FlipArry[1])
-      update(e, noteText, FlipArry[2])
+      update(e, noteText, FlipArry[2], style)
     }
   }
 
-  const update = (e, newText, i) => {
-    handleUpdate(e, newText, i)
+  const update = (e, newText, i, style) => {
+    handleUpdate(e, newText, i, style)
   };
 
   const modify = (from, to, id) => {
@@ -218,27 +234,20 @@ const Board = () => {
   }
 
   const remove = (i) => {
-    const updatedNotes = notes.filter(note => note.id !== i);
-    setNotes(updatedNotes);
+    bbs_delete(i)
   };
   
-  const dragset = (transform, i) => {
-    console.log(transform)
-    const Localnotes = JSON.parse(localStorage.getItem('bbs_data_style'));
-    const updatedNotes = Localnotes.map(note => {
-      if (note.id === parseInt(i)) {
-        return { ...note, style:{...note.style, transform:transform} };
-      }
-      return note;
-    });
-    setNotes(updatedNotes);
+  const dragset = (e, transform, i) => {
+    const updatedNotes = notes.filter(note => note.id === i);
+    const noteText = updatedNotes[0].note;
+
+    update(e, noteText, i, transform)
   }
 
   const flipOut = () => {
     flip(FlipArry[0], FlipArry[1])
     if(FlipArry[0] === '.createBtn'){
       remove(id)
-      setId(id)
     }else{
       const updatedNotes = notes.map(note => {
           return { ...note, state:true};

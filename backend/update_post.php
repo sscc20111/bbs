@@ -17,8 +17,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id = $data["id"];
     $text = $data["text"];
     $state = $data["state"];
+    $style = $data["style"];
     
-    $sql = "UPDATE testDB SET text = '$text', state = '$state' WHERE id = $id";
+    $sql = "UPDATE testDB SET text = '$text', state = '$state', style = '$style' WHERE id = $id";
 
     if ($conn->query($sql) === TRUE) {
         echo json_encode(array("message" => "Data updated successfully"));
