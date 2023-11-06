@@ -16,13 +16,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $text = $data["text"];
     $style = $data["style"];
-    // $user_data = $data["user_data"];
+    $user_data = $data["user_data"];
     $state = $data["state"];
     $date = date("Y-m-d");
     $ip = $_SERVER["REMOTE_ADDR"];
 
-    // $sql = "INSERT INTO testDB (text, date, ip, style, user_data, state) VALUES ('$text', '$date', '$ip', '$style', '$user_data', '$state')";
-    $sql = "INSERT INTO testDB (text, date, ip, style, state) VALUES ('$text', '$date', '$ip', '$style', '$state')";
+    $sql = "INSERT INTO testDB (text, date, ip, style, user_data, state) VALUES ('$text', '$date', '$ip', '$style', '$user_data', '$state')";
+    // $sql = "INSERT INTO testDB (text, date, ip, style, state) VALUES ('$text', '$date', '$ip', '$style', '$state')";
 
     if ($conn->query($sql) === TRUE) {
         $response = array('message' => 'Post saved successfully');

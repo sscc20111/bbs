@@ -8,6 +8,10 @@ import { Button, Container, FloatingLabel, FormControl, Stack } from 'react-boot
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
+
+import LoginForm from './component/Login/Login'
+
+
 gsap.registerPlugin(Draggable, Flip) 
 
 const style = () => {
@@ -35,7 +39,7 @@ const flip = (from, to) => {
   });
 }
 
-const Note = ({ index, children, style, onRemove, drag, modify, state }) => {
+const Note = ({ note, children, onRemove, drag, modify }) => {
     useEffect(()=>{
       Draggable.create(".note",{
         onDragEnd: function(e) {
@@ -48,35 +52,46 @@ const Note = ({ index, children, style, onRemove, drag, modify, state }) => {
     },[drag])
 
     const remove = () => {
-        onRemove(index);
+        onRemove(note.id);
     };
 
     const modifyTarget = (e) => {
       const target = e.target.closest('.note')
       const modifyTarget = `.${target.classList[1]}`
-      modify(modifyTarget, '.flipForm', index)
+      modify(modifyTarget, '.flipForm', note.id)
     }
 
-    if(state){
+    useEffect(()=>{
+      console.log(note.user_data)
+    },[])
+    const test = localStorage.getItem('token')
+    const test1 = JSON.parse(test)
+    console.log(test1.user_data)
+
+    if(note.state){
       return (
-          <div className={'note flipIndex' + index} style={style} data-index={index} data-flip-id="flipform">
+          <div className={'note flipIndex' + note.id} style={note.style} data-index={note.id} data-flip-id="flipform">
               <p>{children}</p>
-              <p>{index}</p>
-              <span>
-                  <button onClick={modifyTarget} className="btn btn-primary glyphicon glyphicon-pencil" />
-                  <button onClick={remove} className="btn btn-danger glyphicon glyphicon-trash" />
-              </span>
+              <p>{note.id}</p>
+              {note.user_data === test1.user_data && (
+                <span>
+                    <button onClick={modifyTarget} className="btn btn-primary glyphicon glyphicon-pencil" />
+                    <button onClick={remove} className="btn btn-danger glyphicon glyphicon-trash" />
+                </span>
+              )}
           </div>
       );
     }else{
       return (
-          <div className={'note flipIndex' + index + ' dumyNote'} style={style} data-index={index} data-flip-id="flipform">
+          <div className={'note flipIndex' + note.id + ' dumyNote'} style={note.style} data-index={note.index} data-flip-id="flipform">
               <p>{children}</p>
-              <p>{index}</p>
-              <span>
-                  <button onClick={modifyTarget} className="btn btn-primary glyphicon glyphicon-pencil" />
-                  <button onClick={remove} className="btn btn-danger glyphicon glyphicon-trash" />
-              </span>
+              <p>{note.index}</p>
+              {note.user_data === test1.user_data && (
+                <span>
+                    <button onClick={modifyTarget} className="btn btn-primary glyphicon glyphicon-pencil" />
+                    <button onClick={remove} className="btn btn-danger glyphicon glyphicon-trash" />
+                </span>
+              )}
           </div>
       );
     }
@@ -116,6 +131,7 @@ const Board = () => {
   const [notes, setNotes] = useState([]);
   const [id, setId] = useState(0);
   const [FlipArry, setFlip] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -157,6 +173,7 @@ const Board = () => {
     try {
       const response = await axios.post('http://nmwoo.info/backend/save_post.php', {
         text: 'textValue',
+        user_data: JSON.parse(localStorage.getItem('token')).user_data,
         style: style(),
         state: false
       });
@@ -255,18 +272,25 @@ const Board = () => {
       setNotes(updatedNotes);
     }
   }
-
+const LoginVisible =() => {
+  setIsLoggedIn(true)
+}
+const LoginHide =() => {
+  setIsLoggedIn(false)
+}
 
     return (
-        <div className="board">
-            {notes.map((note) => (
-                <Note key={note.id} index={note.id} length={id} style={note.style} state={note.state} drag={dragset} modify={modify} onRemove={remove}>
-                    {note.note}
-                </Note>
-            ))}
-            <button className="createBtn btn btn-sm btn-success glyphicon glyphicon-plus" data-flip-id="flipform" onClick={creatNote} />
-            <NoteFlip textsave={noteSave} flipOut={flipOut}></NoteFlip>
-        </div>
+      <div className="board">
+        {isLoggedIn && <LoginForm LoginHide={LoginHide} />}
+        {notes.map((note) => (
+            <Note key={note.id} note={note} drag={dragset} modify={modify} onRemove={remove}>
+                {note.note}
+            </Note>
+        ))}
+        <button className="createBtn btn btn-sm btn-success glyphicon glyphicon-plus" data-flip-id="flipform" onClick={creatNote} />
+        <button className="createBtn2 btn btn-sm btn-success top-10px" style={{position:'absolute', top:'40px', right:'10px'}} onClick={LoginVisible} />
+        <NoteFlip textsave={noteSave} flipOut={flipOut}></NoteFlip>
+      </div>
     );
 };
 
