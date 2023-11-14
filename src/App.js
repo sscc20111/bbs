@@ -10,6 +10,8 @@ import './index.css';
 
 
 import LoginForm from './component/Login/Login'
+import loginTokenExpiry from './component/Login/LoginTokenExpiry'
+// import { create } from 'domain';
 
 
 gsap.registerPlugin(Draggable, Flip) 
@@ -61,19 +63,13 @@ const Note = ({ note, children, onRemove, drag, modify }) => {
       modify(modifyTarget, '.flipForm', note.id)
     }
 
-    useEffect(()=>{
-      console.log(note.user_data)
-    },[])
-    const test = localStorage.getItem('token')
-    const test1 = JSON.parse(test)
-    console.log(test1.user_data)
 
     if(note.state){
       return (
           <div className={'note flipIndex' + note.id} style={note.style} data-index={note.id} data-flip-id="flipform">
               <p>{children}</p>
               <p>{note.id}</p>
-              {note.user_data === test1.user_data && (
+              {JSON.parse(localStorage.getItem('token')) && note.user_data === JSON.parse(localStorage.getItem('token')).user_data && (
                 <span>
                     <button onClick={modifyTarget} className="btn btn-primary glyphicon glyphicon-pencil" />
                     <button onClick={remove} className="btn btn-danger glyphicon glyphicon-trash" />
@@ -86,7 +82,7 @@ const Note = ({ note, children, onRemove, drag, modify }) => {
           <div className={'note flipIndex' + note.id + ' dumyNote'} style={note.style} data-index={note.index} data-flip-id="flipform">
               <p>{children}</p>
               <p>{note.index}</p>
-              {note.user_data === test1.user_data && (
+              {JSON.parse(localStorage.getItem('token')) && note.user_data === JSON.parse(localStorage.getItem('token')).user_data && (
                 <span>
                     <button onClick={modifyTarget} className="btn btn-primary glyphicon glyphicon-pencil" />
                     <button onClick={remove} className="btn btn-danger glyphicon glyphicon-trash" />
@@ -118,12 +114,22 @@ const NoteFlip = ({textsave, flipOut}) => {
       <FloatingLabel className='mb-4' controlId="noteText" label='방명록을 작성해주세요'>
         <FormControl as="textarea" placeholder="Leave a comment here" style={{ height: '300px' }} value={noteText} onChange={(e) => setNoteText(e.target.value)}></FormControl>
       </FloatingLabel>
-      <Stack direction='horizontal'>
+        <Stack direction='horizontal'>
         <Button className='me-2 ms-auto' onClick={save}>save</Button>
         <Button onClick={cancel}>cancel</Button>
       </Stack>
     </Container>
   )
+}
+
+const CreateBtn = ({creatNote,LoginVisible}) => {
+  const isAuthenticated = loginTokenExpiry();
+
+  return isAuthenticated ? (
+    <button className="createBtn btn btn-sm btn-success glyphicon glyphicon-plus" data-flip-id="flipform" onClick={creatNote} />
+  ) : (
+    <button className="createBtn2 btn btn-sm btn-success top-10px" style={{position:'absolute', top:'40px', right:'10px'}} onClick={LoginVisible} />
+  );
 }
 
 
@@ -281,17 +287,17 @@ const LoginHide =() => {
 
     return (
       <div className="board">
-        {isLoggedIn && <LoginForm LoginHide={LoginHide} />}
+        {isLoggedIn && <LoginForm LoginHide={LoginHide} ></LoginForm>}
         {notes.map((note) => (
-            <Note key={note.id} note={note} drag={dragset} modify={modify} onRemove={remove}>
-                {note.note}
-            </Note>
+          <Note key={note.id} note={note} drag={dragset} modify={modify} onRemove={remove}>
+              {note.note}
+          </Note>
         ))}
-        <button className="createBtn btn btn-sm btn-success glyphicon glyphicon-plus" data-flip-id="flipform" onClick={creatNote} />
-        <button className="createBtn2 btn btn-sm btn-success top-10px" style={{position:'absolute', top:'40px', right:'10px'}} onClick={LoginVisible} />
+        <CreateBtn creatNote={creatNote} LoginVisible={LoginVisible}></CreateBtn>
         <NoteFlip textsave={noteSave} flipOut={flipOut}></NoteFlip>
       </div>
     );
 };
+
 
 export default Board;

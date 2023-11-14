@@ -4,7 +4,7 @@ import axios from 'axios';
 import LoginToken from './LoginToken'
 import './Login.css'
 
-const LoginForm = (LoginHide) => {
+const LoginForm = ({LoginHide}) => {
     const [isRegisterFormVisible, setIsRegisterFormVisible] = useState(false);
 
     const toggleForms = () => {
